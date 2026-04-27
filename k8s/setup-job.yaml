@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: inventory-setup-job
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: inventory-setup
+          image: inventory-app:latest
+          imagePullPolicy: Never
+          env:
+            - name: MONGO_URI
+              value: "mongodb://mongo:27017"
+            - name: MONGO_DB
+              value: "inventorydb"
+            - name: ES_HOST
+              value: "http://elasticsearch:9200"
+            - name: ES_INDEX
+              value: "products"
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Waiting for MongoDB and Elasticsearch..."
+              python - <<'PY'
+              import time
+              from pymongo import MongoClient
+              from elasticsearch import Elasticsearch
+
+              mongo = MongoClient("mongodb://mongo:27017")
+              es = Elasticsearch("http://elasticsearch:9200")
+
+              for _ in range(60):
+                  try:
+                      mongo.admin.command("ping")
+                      es.info()
+                      print("MongoDB and Elasticsearch are ready")
+                      break
+                  except Exception as e:
+                      print("Waiting...", e)
+                      time.sleep(5)
+              else:
+                  raise SystemExit("Dependencies not ready")
+              PY
+
+              python -m app.populate_mongo
+              python -m app.index_products
