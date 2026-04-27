@@ -81,8 +81,10 @@ kubectl logs job/inventory-setup-job
 ```
 
 Expected:
+``` bash
 - Mongo populated
 - Elasticsearch indexed
+```
 
 **Do NOT test APIs before this completes**
 
