@@ -1,14 +1,16 @@
 # Inventory Management System (Flask + MongoDB + Elasticsearch + Kubernetes)
 
+------------------------------------------------------------------------
+
 ## Overview
 
 This project implements an Inventory Management System with:
 
--   Flask REST API
--   MongoDB as the primary database (source of truth)
--   Elasticsearch for full-text search
--   Docker for containerization
--   Kubernetes (Minikube) for orchestration
+-   ⚡ Flask REST API\
+-   🗄️ MongoDB (source of truth)\
+-   🔍 Elasticsearch (full-text search)\
+-   🐳 Docker (containerization)\
+-   ☸️ Kubernetes via Minikube (orchestration)
 
 **Recommended way to run: Kubernetes (Minikube)**
 
@@ -16,28 +18,13 @@ This project implements an Inventory Management System with:
 
 ## Prerequisites
 
-### Verify Git
+Verify tools:
 
 ``` bash
 git --version
-```
-
-### Verify Minikube
-
-``` bash
-minikube version
-```
-
-### Verify Docker
-
-``` bash
 docker --version
-```
-
-### Verify Minikube is running
-
-``` bash
-minikube status
+minikube version
+kubectl version --client
 ```
 
 ------------------------------------------------------------------------
@@ -51,21 +38,25 @@ cd inventory-management
 
 ------------------------------------------------------------------------
 
-## Quick Start (Kubernetes - Recommended)
+# Quick Start (Kubernetes - Recommended)
 
-### 1. Start Minikube
+## Start Minikube
 
 ``` bash
 minikube start --driver=docker
 ```
 
-### 2. Build Image
+------------------------------------------------------------------------
+
+## Build Image inside Minikube
 
 ``` bash
 minikube image build -t inventory-app:latest .
 ```
 
-### 3. Deploy
+------------------------------------------------------------------------
+
+## Deploy Resources
 
 ``` bash
 kubectl apply -f k8s/
@@ -89,18 +80,16 @@ Check logs:
 kubectl logs job/inventory-setup-job
 ```
 
-Expected:
+Expected: - Mongo populated\
+- Elasticsearch indexed
 
-    Inserted 50 products into MongoDB
-    Indexed 50 products into Elasticsearch
-
-⚠️ Only continue after job is complete.
+**Do NOT test APIs before this completes**
 
 ------------------------------------------------------------------------
 
 ## Get Application URL
 
-Run in one terminal and KEEP IT OPEN:
+Run in one terminal (keep open):
 
 ``` bash
 minikube service inventory-app --url
@@ -110,7 +99,7 @@ Example:
 
     http://127.0.0.1:55917
 
-In a second terminal:
+In another terminal:
 
 ``` bash
 APP_URL="http://127.0.0.1:55917"
@@ -118,37 +107,21 @@ APP_URL="http://127.0.0.1:55917"
 
 ------------------------------------------------------------------------
 
-## API Test Commands
-
-### Health
+# API Test Commands
 
 ``` bash
 curl "$APP_URL/health"
-```
-
-### Get Products
-
-``` bash
 curl "$APP_URL/products"
-```
-
-### Search
-
-``` bash
+curl "$APP_URL/products/1"
 curl "$APP_URL/products/search?query=fragrance"
-```
-
-### Analytics
-
-``` bash
 curl "$APP_URL/products/analytics"
 ```
 
 ------------------------------------------------------------------------
 
-## Full CRUD Flow
+# Full CRUD Flow
 
-### Create
+## Create
 
 ``` bash
 curl -X POST "$APP_URL/products" \
@@ -157,51 +130,65 @@ curl -X POST "$APP_URL/products" \
     "productId": 999,
     "productName": "Trail Bottle",
     "price": 18.99,
-    "description": "Bottle for hiking and camping",
+    "description": "Bottle for hiking",
     "productCategory": "outdoor",
     "availableQuantity": 45
   }'
 ```
 
-### Verify
+## Verify
 
 ``` bash
 curl "$APP_URL/products/999"
 curl "$APP_URL/products/search?query=hiking"
 ```
 
-### Update
+## Update
 
 ``` bash
 curl -X PUT "$APP_URL/products/999" \
   -H "Content-Type: application/json" \
-  -d '{
-    "description": "Updated bottle for trekking"
-  }'
+  -d '{"description": "Updated bottle for trekking"}'
 ```
 
-### Verify Update
-
-``` bash
-curl "$APP_URL/products/search?query=trekking"
-```
-
-### Delete
+## Delete
 
 ``` bash
 curl -X DELETE "$APP_URL/products/999"
 ```
 
-### Verify Delete
+------------------------------------------------------------------------
+
+# Docker Setup (Optional)
 
 ``` bash
-curl "$APP_URL/products/999"
-curl "$APP_URL/products/search?query=trekking"
+docker network create inventory-net
+
+docker run -d --name mongo --network inventory-net -p 27017:27017 mongo:7
+
+docker run -d --name elasticsearch --network inventory-net -p 9200:9200 \
+  -e "discovery.type=single-node" \
+  -e "xpack.security.enabled=false" \
+  docker.elastic.co/elasticsearch/elasticsearch:8.13.4
 ```
 
 ------------------------------------------------------------------------
 
-## Run Tests
+# Local Setup (Optional)
+
+``` bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+------------------------------------------------------------------------
+
+# Automated Tests (Optional)
+
+Tests require MongoDB + Elasticsearch running locally.
+
+Use Docker setup above, then run:
 
 ``` bash
 python -m pytest -q
@@ -209,6 +196,6 @@ python -m pytest -q
 
 ------------------------------------------------------------------------
 
-## Summary
+# Summary
 
-Flask + MongoDB + Elasticsearch + Docker + Kubernetes
+    Flask + MongoDB + Elasticsearch + Docker + Kubernetes
