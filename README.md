@@ -6,11 +6,11 @@
 
 This project implements an Inventory Management System with:
 
--   ⚡ Flask REST API\
--   🗄️ MongoDB (source of truth)\
--   🔍 Elasticsearch (full-text search)\
--   🐳 Docker (containerization)\
--   ☸️ Kubernetes via Minikube (orchestration)
+-   Flask REST API
+-   MongoDB (source of truth)
+-   Elasticsearch (full-text search)
+-   Docker (containerization)
+-   Kubernetes via Minikube (orchestration)
 
 **Recommended way to run: Kubernetes (Minikube)**
 
@@ -32,7 +32,7 @@ kubectl version --client
 ## Clone Repository
 
 ``` bash
-git clone <REPO_URL>
+git clone https://github.com/daramanoj49-pixel/inventory-management.git
 cd inventory-management
 ```
 
@@ -80,7 +80,8 @@ Check logs:
 kubectl logs job/inventory-setup-job
 ```
 
-Expected: - Mongo populated\
+Expected:
+- Mongo populated
 - Elasticsearch indexed
 
 **Do NOT test APIs before this completes**
